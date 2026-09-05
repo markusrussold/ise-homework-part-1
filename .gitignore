@@ -31,6 +31,9 @@ htmlcov/
 # Runtime logs (keep committed execution logs)
 logs/audit.log
 
+# PDF preview renders
+_pdf_preview/
+
 # IDE / OS
 .idea/
 .vscode/
