@@ -1,0 +1,11 @@
+[project]
+name = "ise-homework-part-1"
+version = "0.1.0"
+description = "ISE Industrial Computing – Homework Part 1 MCP Math & Database Tool Server"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=3.4.4",
+    "openai>=2.46.0",
+    "python-dotenv>=1.2.2",
+]
