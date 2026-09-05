@@ -33,6 +33,7 @@ logs/audit.log
 
 # PDF preview renders
 _pdf_preview/
+*.tmp.pdf
 
 # IDE / OS
 .idea/

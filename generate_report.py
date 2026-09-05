@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parent
 SCREENSHOTS = ROOT / "screenshots"
 OUTPUT = ROOT / "ISE_Homework_Part1.pdf"
 REPO_URL = "https://github.com/markusrussold/ise-homework-part-1"
+MATRIKELNUMMER = "52010547"
+REPORT_DATE = "05.09.2026"
 
 pdfmetrics.registerFont(TTFont("Arial", r"C:\Windows\Fonts\arial.ttf"))
 pdfmetrics.registerFont(TTFont("Arial-Bold", r"C:\Windows\Fonts\arialbd.ttf"))
@@ -108,12 +110,12 @@ def make_styles():
         ParagraphStyle(
             "Caption",
             fontName="Arial",
-            fontSize=9,
-            leading=12,
+            fontSize=8,
+            leading=10,
             textColor=MUTED,
             alignment=TA_LEFT,
-            spaceBefore=1.5 * mm,
-            spaceAfter=4 * mm,
+            spaceBefore=0.8 * mm,
+            spaceAfter=1.6 * mm,
         )
     )
     styles.add(
@@ -172,23 +174,25 @@ def add_page_bits(canvas, doc):
     canvas.saveState()
     canvas.setStrokeColor(RULE)
     canvas.setLineWidth(0.4)
-    canvas.line(18 * mm, 12 * mm, A4[0] - 18 * mm, 12 * mm)
-    canvas.setFont("Arial", 8)
+    canvas.line(18 * mm, 14 * mm, A4[0] - 18 * mm, 14 * mm)
     canvas.setFillColor(HexColor("#666666"))
-    canvas.drawString(18 * mm, 7 * mm, "ISE Industrial Computing – Homework Part 1")
-    canvas.drawRightString(A4[0] - 18 * mm, 7 * mm, f"Page {doc.page}")
+    canvas.setFont("Arial", 8)
+    canvas.drawString(18 * mm, 8.2 * mm, f"Matrikelnummer {MATRIKELNUMMER}")
+    canvas.drawCentredString(A4[0] / 2, 8.2 * mm, REPORT_DATE)
+    canvas.drawRightString(A4[0] - 18 * mm, 8.2 * mm, f"Page {doc.page}")
     canvas.restoreState()
 
 
 def build():
     styles = make_styles()
+    tmp = OUTPUT.with_suffix(".tmp.pdf")
     doc = SimpleDocTemplate(
-        str(OUTPUT),
+        str(tmp),
         pagesize=A4,
         leftMargin=18 * mm,
         rightMargin=18 * mm,
         topMargin=16 * mm,
-        bottomMargin=18 * mm,
+        bottomMargin=20 * mm,
         title="ISE Industrial Computing – Homework Part 1",
         author="Markus Russold",
     )
@@ -198,6 +202,12 @@ def build():
     story.append(Paragraph("ISE Industrial Computing – Homework Part 1", styles["CoverTitle"]))
     story.append(Paragraph("Custom MCP Math &amp; Database Tool Server", styles["CoverSub"]))
     story.append(Paragraph("Markus Russold", styles["CoverSub"]))
+    story.append(
+        Paragraph(
+            f"Matrikelnummer {MATRIKELNUMMER}  |  {REPORT_DATE}",
+            styles["CoverSub"],
+        )
+    )
     story.append(
         Paragraph(
             f'Public GitHub repository (clickable): '
@@ -313,42 +323,42 @@ def build():
         )
     )
 
-    figures = [
-        (
-            SCREENSHOTS / "HWP1_Exec1_MCPServer.png",
+    story.append(PageBreak())
+    proof = [
+        Paragraph("Proof of execution", styles["Heading"]),
+        Paragraph(
+            "Screenshots in required order: MCP server, ReAct client, then the local audit log.",
+            styles["Body"],
+        ),
+        scaled_image(SCREENSHOTS / "HWP1_Exec1_MCPServer.png", usable_w, 52 * mm),
+        Paragraph(
             "Figure 1. MCP server (server.py) – FastMCP Math_Database_Tools listening on "
             "http://0.0.0.0:8000/mcp and accepting client requests.",
-            210 * mm,
+            styles["Caption"],
         ),
-        (
-            SCREENSHOTS / "HWP1_Exec2_MCPClient.png",
+        scaled_image(SCREENSHOTS / "HWP1_Exec2_MCPClient.png", usable_w, 98 * mm),
+        Paragraph(
             "Figure 2. ReAct client (client.py) – discovers lookup_inventory, "
             "compute_tiered_discount and append_audit_event, then calls all three tools.",
-            220 * mm,
+            styles["Caption"],
         ),
-        (
-            SCREENSHOTS / "HWP1_Exec1_AuditLog.png",
+        scaled_image(SCREENSHOTS / "HWP1_Exec1_AuditLog.png", usable_w, 32 * mm),
+        Paragraph(
             "Figure 3. Audit log (logs/audit.log) – timestamped events written by append_audit_event, "
             "including stock (35), 12% discount and $8448 total.",
-            140 * mm,
+            styles["Caption"],
         ),
     ]
-    for index, (path, caption, max_h) in enumerate(figures):
-        story.append(PageBreak())
-        if index == 0:
-            story.append(Paragraph("Proof of execution", styles["Heading"]))
-            story.append(
-                Paragraph(
-                    "Screenshots in required order: MCP server, ReAct client, then the local audit log.",
-                    styles["Body"],
-                )
-            )
-        story.append(KeepTogether([
-            scaled_image(path, usable_w, max_h),
-            Paragraph(caption, styles["Caption"]),
-        ]))
+    story.append(KeepTogether(proof))
 
     doc.build(story, onFirstPage=add_page_bits, onLaterPages=add_page_bits)
+    try:
+        tmp.replace(OUTPUT)
+    except PermissionError:
+        import shutil
+
+        shutil.copyfile(tmp, OUTPUT)
+        tmp.unlink(missing_ok=True)
     print(f"Wrote {OUTPUT}")
 
 
