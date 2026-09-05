@@ -177,7 +177,7 @@ def add_page_bits(canvas, doc):
     canvas.line(18 * mm, 14 * mm, A4[0] - 18 * mm, 14 * mm)
     canvas.setFillColor(HexColor("#666666"))
     canvas.setFont("Arial", 8)
-    canvas.drawString(18 * mm, 8.2 * mm, f"Matrikelnummer {MATRIKELNUMMER}")
+    canvas.drawString(18 * mm, 8.2 * mm, f"Matriculation number {MATRIKELNUMMER}")
     canvas.drawCentredString(A4[0] / 2, 8.2 * mm, REPORT_DATE)
     canvas.drawRightString(A4[0] - 18 * mm, 8.2 * mm, f"Page {doc.page}")
     canvas.restoreState()
@@ -204,7 +204,7 @@ def build():
     story.append(Paragraph("Markus Russold", styles["CoverSub"]))
     story.append(
         Paragraph(
-            f"Matrikelnummer {MATRIKELNUMMER}  |  {REPORT_DATE}",
+            f"Matriculation number {MATRIKELNUMMER}  |  {REPORT_DATE}",
             styles["CoverSub"],
         )
     )
